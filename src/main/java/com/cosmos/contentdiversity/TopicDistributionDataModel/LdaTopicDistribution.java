@@ -1,4 +1,4 @@
-package ContentDiversity.TopicDistributionDataModel;
+package com.cosmos.contentdiversity.TopicDistributionDataModel;
 
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -7,6 +7,7 @@ import java.util.List;
 
 public class LdaTopicDistribution {
     public String blogPostId;
+    public String blogSiteId;
     public  String date;
     public String topicSummary;
     public List<Dictionary<Integer, Double>> lda;

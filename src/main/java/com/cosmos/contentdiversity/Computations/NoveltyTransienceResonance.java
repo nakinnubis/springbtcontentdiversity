@@ -1,33 +1,38 @@
-package ContentDiversity.Computations;
+package com.cosmos.contentdiversity.Computations;
 
-import ContentDiversity.DataModel.*;
+
+import com.cosmos.contentdiversity.DataModel.Novelty;
+import com.cosmos.contentdiversity.DataModel.Resonance;
+import com.cosmos.contentdiversity.DataModel.Transience;
+import com.cosmos.contentdiversity.DataModel.TransienceNoveltyResonance;
+import com.cosmos.contentdiversity.TopicDistributionDataModel.LdaTopicDistribution;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.IntStream.range;
 
 public class NoveltyTransienceResonance {
-    final int[] scaleList = range(1, 2).map(a -> a * 200).toArray();
+    final int[] scaleList = new int []{100};
     public static final double log2 = Math.log(2);
 
-    public ArrayList main(ArrayList<Document> topicDistribution) {
+    public ArrayList main(List<LdaTopicDistribution> topicDistribution) {
         Supplier<ArrayList> collectionFactory = ArrayList::new;
         ArrayList arrayList = collectionFactory.get();
-        stream(scaleList).mapToObj(scaleSize -> getNoveltyTransienceResonance(topicDistribution, scaleSize)).forEachOrdered(arrayList::add);
-        range(0, 10).forEach(topicIndex -> stream(scaleList).mapToObj(scaleSize -> getNoveltyTransienceResonance(topicDistribution, scaleSize)).forEachOrdered(arrayList::add));
+        for (int i : scaleList) {
+            List<TransienceNoveltyResonance> noveltyTransienceResonance = getNoveltyTransienceResonance(topicDistribution, i);
+            arrayList.add(noveltyTransienceResonance);
+        }
+        for (int topicIndex = 0; topicIndex < 10; topicIndex++) {
+            stream(scaleList).mapToObj(scaleSize -> getNoveltyTransienceResonance(topicDistribution, scaleSize)).forEachOrdered(arrayList::add);
+        }
         return arrayList;
-    }
-    public ArrayList zScoresNoveltyTransienceResonance(){
-        ArrayList result = new ArrayList();
-        //sDeviation
-        return result;
     }
 
     /**
@@ -58,12 +63,35 @@ public class NoveltyTransienceResonance {
         ArrayList<Double> kldivres = new ArrayList<>();
         int j = 0;
         if (j < pp1.length) {
-            do {
-                double[] p1 = pp1[j];
-                double[] p2 = pp2[j];
-                double klDiv = 0.0;
+            double[] p1 = pp1[j];
+            double[] p2 = pp2[j];
+            double klDiv = 0.0;
 
-                int i = 0;
+            int i = 0;
+            while (i < p1.length) {
+                if (p1[i] == 0) {
+                    ++i;
+                    j++;
+                    continue;
+                }
+                if (p2[i] == 0.0) {
+                    ++i;
+                    j++;
+                    continue;
+                } // Limin
+
+                klDiv += p1[i] * Math.log(p1[i] / p2[i]);
+                ++i;
+            }
+            double ii = klDiv / log2;
+            kldivres.add(ii);
+            j++;
+            while (j < pp1.length) {
+                p1 = pp1[j];
+                p2 = pp2[j];
+                klDiv = 0.0;
+
+                i = 0;
                 while (i < p1.length) {
                     if (p1[i] == 0) {
                         ++i;
@@ -79,21 +107,20 @@ public class NoveltyTransienceResonance {
                     klDiv += p1[i] * Math.log(p1[i] / p2[i]);
                     ++i;
                 }
-                double ii = klDiv / log2;
+                ii = klDiv / log2;
                 kldivres.add(ii);
                 j++;
-            } while (j < pp1.length);
+            }
         }
         double[] list = new double[kldivres.size()];
 
         int i = 0, kldivresSize = kldivres.size();
-        do {
-            if (i >= kldivresSize) break;
+        while (i < kldivresSize) {
             Double kldivre = kldivres.get(i);
             double doubleValue = kldivre.doubleValue();
             list[i] = doubleValue;
             i++;
-        } while (true);
+        }
         return list;
 
     }
@@ -104,7 +131,7 @@ public class NoveltyTransienceResonance {
      * @param scaleSize         this is the scale input argument e.g currently we have a final scales ranging from [100 - 800]
      * @return A list of an arraylist of transience, novelty and resonance this is due to the fact that it is usually used with various scales so it will return these items for each scale element
      */
-    public List<TransienceNoveltyResonance> getNoveltyTransienceResonance(ArrayList<Document> topicDistribution, int scaleSize) {
+    public List<TransienceNoveltyResonance> getNoveltyTransienceResonance(List<LdaTopicDistribution> topicDistribution, int scaleSize) {
         int speechStart = scaleSize;
         //get the number of topic distribution rows in the array
         //this number of rows is stored as row size to replace the version of Dr. Zach doc_topic.shape[0]
@@ -120,7 +147,7 @@ public class NoveltyTransienceResonance {
         //Get the list of theta from an array list of topic distribution
         //This is necessary to avoid index out of bound exception
         range(speechStart, speechEnd).forEachOrdered(i -> {
-            Document centerDistribution = topicDistribution.get(i);
+            LdaTopicDistribution centerDistribution = topicDistribution.get(i);
             int afterBoxEnd = i + scaleSize + 1;
             int beforeBoxStart = i - scaleSize;
             List<double[]> thetaAsList = topicDistribution.stream().map(d -> d.theta).collect(Collectors.toList());
@@ -131,8 +158,14 @@ public class NoveltyTransienceResonance {
                 //size or row size of before topic distribution
                 int beforeNum = beforeDistribution.size();
                 //array list of before center
-                ArrayList<?> beforeCenterDistribution = (ArrayList<?>) Stream.of(centerDistribution.theta).map(elt -> Collections.nCopies(beforeNum, elt)).flatMap(List::stream)
-                        .collect(Collectors.toList());
+                List<double[]> list = new ArrayList<>();
+                for (double[] elt : Arrays.asList(centerDistribution.theta)) {
+                    List<double[]> doubles = Collections.nCopies(beforeNum, elt);
+                    for (double[] double1 : doubles) {
+                        list.add(double1);
+                    }
+                }
+                ArrayList<?> beforeCenterDistribution = (ArrayList<?>) list;
                 //create a 2d array of double from before center distribution
                 double[][] _beforeCenterDistribution = beforeCenterDistribution.toArray(new double[0][]);
                 //create a 2d array of double from before distribution
@@ -144,7 +177,8 @@ public class NoveltyTransienceResonance {
                 //  novelties.add(novelty);
                 //    var date =  topicDistribution.get(1).blog_date;
                 var novelt = new Novelty();
-                novelt.date = addOneDay(centerDistribution.blog_date);
+                novelt.date = centerDistribution.date;
+                        //addOneDay(centerDistribution.date);
                 novelt.novelty = novelty;
                 novelties.add(novelt);
                 //  novelties.add(novelty);
@@ -161,24 +195,30 @@ public class NoveltyTransienceResonance {
         return noveltyTransienceResonance;
     }
 
-    private void generateTransienceAndResonance(ArrayList<Transience> transiences, ArrayList<Resonance> resonances, int i, Document centerDistribution, int afterBoxEnd, List<double[]> thetaAsList, double novelty) {
+    private void generateTransienceAndResonance(ArrayList<Transience> transiences, ArrayList<Resonance> resonances, int i, LdaTopicDistribution centerDistribution, int afterBoxEnd, List<double[]> thetaAsList, double novelty) {
         ArrayList<?> afterDistribution = new ArrayList<>(sublist(thetaAsList, i + 1, afterBoxEnd));
         int afterNum = afterDistribution.size();
-        ArrayList<?> afterCenterDistribution = (ArrayList<?>) Stream.of(centerDistribution.theta).map(elt -> Collections.nCopies(afterNum, elt)).flatMap(List::stream)
-                .collect(Collectors.toList());
+        List<double[]> list = new ArrayList<>();
+        for (double[] elt : Arrays.asList(centerDistribution.theta)) {
+            List<double[]> doubles = Collections.nCopies(afterNum, elt);
+            for (double[] double1 : doubles) {
+                list.add(double1);
+            }
+        }
+        ArrayList<?> afterCenterDistribution = (ArrayList<?>) list;
         double[][] _afterDistribution = afterDistribution.toArray(new double[0][]);
         double[][] _afterCenterDistribution = afterCenterDistribution.toArray(new double[0][]);
         double[] afterKlDivergence = klDivergenceFromProbDistArrays(_afterDistribution, _afterCenterDistribution);
         double transience = stream(afterKlDivergence).average().orElse(0.0);
         //centerDistribution.
         var _transience = new Transience();
-        _transience.date = centerDistribution.blog_date;
+        _transience.date = centerDistribution.date;
         _transience.transience = transience;
         transiences.add(_transience);
         //(transience);
         double resonance = novelty - transience;
         var _resonance = new Resonance();
-        _resonance.date = centerDistribution.blog_date;
+        _resonance.date = centerDistribution.date;
         _resonance.resonance = resonance;
         resonances.add(_resonance);
     }

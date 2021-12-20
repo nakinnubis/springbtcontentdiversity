@@ -1,4 +1,4 @@
-package ContentDiversity.DataModel;
+package com.cosmos.contentdiversity.DataModel;
 
 public class Resonance {
     public String date;

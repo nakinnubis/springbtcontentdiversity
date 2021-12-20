@@ -1,4 +1,4 @@
-package ContentDiversity.DataModel;
+package com.cosmos.contentdiversity.DataModel;
 
 public class Novelty {
     public String date;

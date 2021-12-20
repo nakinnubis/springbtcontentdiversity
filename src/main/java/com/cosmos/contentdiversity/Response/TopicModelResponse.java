@@ -1,4 +1,4 @@
-package ContentDiversity.Response;
+package com.cosmos.contentdiversity.Response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

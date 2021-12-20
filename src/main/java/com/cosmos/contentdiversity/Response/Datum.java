@@ -1,4 +1,4 @@
-package ContentDiversity.Response;
+package com.cosmos.contentdiversity.Response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -62,7 +62,7 @@ public class Datum {
     }
 
     List<Lda> lda;
-
+        double[] theta;
     @JsonProperty("topKeyWords")
     public Hashtable<String, List<HashMap<String, Integer>>> getTopKeyWords() {
         return this.topKeyWords;
