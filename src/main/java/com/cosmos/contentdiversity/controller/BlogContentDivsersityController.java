@@ -59,7 +59,7 @@ private  void getTopicDistribution() throws IOException {
         ldaa.blogPostId= String.valueOf(a.getBlogPostId());
         ldaa.blogSiteId = String.valueOf(a.getBlogSiteId());
         return ldaa;
-    }).toList().subList(0,400);
+    }).toList();
     generateContentDiversity(mappedData);
 
 }
