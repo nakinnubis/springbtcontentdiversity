@@ -3,7 +3,6 @@ package com.cosmos.contentdiversity.controller;
 
 import com.cosmos.contentdiversity.Computations.NoveltyTransienceResonance;
 import com.cosmos.contentdiversity.DataModel.BlogPost;
-import com.cosmos.contentdiversity.DataModel.Document;
 import com.cosmos.contentdiversity.DataModel.TransienceNoveltyResonance;
 import com.cosmos.contentdiversity.TopicDistributionDataModel.LdaTopicDistribution;
 import com.google.gson.Gson;
