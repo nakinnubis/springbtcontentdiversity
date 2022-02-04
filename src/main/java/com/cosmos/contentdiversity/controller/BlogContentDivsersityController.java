@@ -39,10 +39,11 @@ public class BlogContentDivsersityController {
 private  void getTopicDistribution() throws IOException {
     OkHttpClient client = new OkHttpClient().newBuilder()
             .build();
+    //&size=500
     Request request = new Request.Builder()
-            .url("http://144.167.35.135:9011/api/v1/dashboard/trackers/427/topic-distribution?dateStart=2017-01-01&dateEnd=2018-01-01")
+            .url("http://144.167.35.135:9011/api/v1/dashboard/trackers/428/topic-distribution?dateStart=2017-01-01&dateEnd=2018-01-01&size=200")
             .method("GET", null)
-            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjb3Ntb2dyYXBoZXJzQGdtYWlsLmNvbSIsImV4cCI6MTY0MDk4OTY5OX0.d0wlqj8iBVcsSHoTFfxreBKApWvyoEKZS51oIL3qAIh32e53AR7Nzae9J8RB-xWEbyraXBtYYb0OEs01qUPrXw")
+            .addHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjb3Ntb2dyYXBoZXJzQGdtYWlsLmNvbSIsImV4cCI6MTY0NDczNjkzMH0.EYhgeJvMrxTgV60Y2nFqfMxtNw0uifqzjHxUFrfs59vg5EAfCIDtEIbEpfUTYzROxiMOsoSyXbSboVx8eD2v5w")
             .build();
     //LdaTopicDistribution
     ResponseBody response = client.newCall(request).execute().body();
@@ -69,6 +70,7 @@ public void generateContentDiversity(List<LdaTopicDistribution> topicDistributio
     JsonArray result = (JsonArray) new Gson().toJsonTree(_noveltyTransienceResonance,
             new TypeToken<List<TransienceNoveltyResonance>>() {
             }.getType());
+    System.out.println(result.toString());
     var r = result;
 }
 }

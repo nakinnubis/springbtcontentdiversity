@@ -40,7 +40,7 @@ public static  Map<String, ArrayList<HashMap<String, Double>>> getTopics(List<Ha
     }
         return topics;
 }
-    private void setBlogTopicDistributionThreshold(double topic_threshold, Map<String, ArrayList<HashMap<String, Double>>> topics, ArrayList blogposts, String default_author, int[] bloggerMention, int[] postMention, String[] topBloggers, double[][] blogDistributionMatrix) {
+    private void setBlogTopicDistributionThreshold(double topic_threshold, Map<String, ArrayList<HashMap<String, Double>>> topics, ArrayList<Data> blogposts, String default_author, int[] bloggerMention, int[] postMention, String[] topBloggers, double[][] blogDistributionMatrix) {
         for (int i = 0; i < topics.size(); i++) {
             HashMap<String, Integer> bloggers = new HashMap<>();
             HashMap<String, Integer> locationFrequency = new HashMap<>();
@@ -48,8 +48,25 @@ public static  Map<String, ArrayList<HashMap<String, Double>>> getTopics(List<Ha
             double highestTopicProb = 0;
             int blogPostsInThreshold = 0;
 
-            blogPostsInThreshold = getBlogPostsInThreshold(topic_threshold, topics, blogposts, blogDistributionMatrix, i, bloggers, locationFrequency, highestTopicProb, blogPostsInThreshold,bloggerHighestTopicProb);
+           // blogPostsInThreshold = getBlogPostsInThreshold(topic_threshold, topics, blogposts, blogDistributionMatrix, i, bloggers, locationFrequency, highestTopicProb, blogPostsInThreshold,bloggerHighestTopicProb);
+            for (var doc : blogposts) {
 
+                if(i < doc.theta.length){
+                    if (doc.theta[i] > topic_threshold) {
+                        blogPostsInThreshold++;
+                        // Track author whose post has highest topic probability
+                        if (doc.theta[i] > highestTopicProb) {
+                            highestTopicProb = doc.theta[i];
+                            bloggerHighestTopicProb = doc.blogger;
+                        }
+                        // Track Number of Occurence for each Blogger
+                        occurrenceTrackerForEachBlogs(bloggers, locationFrequency, doc);
+                        // Track Topic Overlap
+                        trackTopicOverlap(topic_threshold, topics, blogDistributionMatrix, i, doc);
+                    }
+                }
+
+            }
             bloggerMention[i] = bloggers.size();
             postMention[i] = blogPostsInThreshold;
             topBloggers[i] = bloggerHighestTopicProb;
@@ -71,7 +88,7 @@ public static  Map<String, ArrayList<HashMap<String, Double>>> getTopics(List<Ha
                     // Track author whose post has highest topic probability
                     if (doc.theta[i] > highestTopicProb) {
                         highestTopicProb = doc.theta[i];
-                        bloggerHighestTopicProb = doc.blogAuthor;
+                        bloggerHighestTopicProb = doc.blogger;
                     }
                     // Track Number of Occurence for each Blogger
                     occurrenceTrackerForEachBlogs(bloggers, locationFrequency, doc);
@@ -84,16 +101,16 @@ public static  Map<String, ArrayList<HashMap<String, Double>>> getTopics(List<Ha
         return blogPostsInThreshold;
     }
     public void occurrenceTrackerForEachBlogs(HashMap<String, Integer> bloggers, HashMap<String, Integer> locationFrequency, Data doc) {
-        if (bloggers.containsKey(doc.blogAuthor)) {
-            bloggers.replace(doc.blogAuthor, bloggers.get(doc.blogAuthor) + 1);
+        if (bloggers.containsKey(doc.blogger)) {
+            bloggers.replace(doc.blogger, bloggers.get(doc.blogger) + 1);
         } else {
-            bloggers.put(doc.blogAuthor, 1);
+            bloggers.put(doc.blogger, 1);
         }
         // Track Location Frequency
-        if (locationFrequency.containsKey(doc.blogLocation)) {
-            locationFrequency.put(doc.blogLocation, locationFrequency.get(doc.blogLocation) + 1);
+        if (locationFrequency.containsKey(doc.location)) {
+            locationFrequency.put(doc.location, locationFrequency.get(doc.location) + 1);
         } else {
-            locationFrequency.put(doc.blogLocation, 1);
+            locationFrequency.put(doc.location, 1);
         }
     }
     private ArrayList<ArrayList<Double>> getChordDiagramMatrix(Map<String, ArrayList<HashMap<String, Double>>> topics, double[][] blogDistributionMatrix) {

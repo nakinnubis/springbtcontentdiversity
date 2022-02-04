@@ -29,7 +29,13 @@ public class Datum {
     }
 
     int blogSiteId;
+    @JsonProperty("title")
+public String title;
 
+    @JsonProperty("blogger")
+    public String blogger;
+    @JsonProperty("location")
+    public String location;
     @JsonProperty("date")
     public Date getDate() {
         return this.date;
@@ -62,7 +68,8 @@ public class Datum {
     }
 
     List<Lda> lda;
-        double[] theta;
+    @JsonProperty("theta")
+    double[] theta;
     @JsonProperty("topKeyWords")
     public Hashtable<String, List<HashMap<String, Integer>>> getTopKeyWords() {
         return this.topKeyWords;

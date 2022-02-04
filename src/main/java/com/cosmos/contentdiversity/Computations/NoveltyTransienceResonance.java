@@ -19,7 +19,7 @@ import static java.util.Arrays.stream;
 import static java.util.stream.IntStream.range;
 
 public class NoveltyTransienceResonance {
-    final int[] scaleList = new int []{100};
+    final int[] scaleList = new int []{3};
     public static final double log2 = Math.log(2);
 
     public ArrayList main(List<LdaTopicDistribution> topicDistribution) {
@@ -27,10 +27,15 @@ public class NoveltyTransienceResonance {
         ArrayList arrayList = collectionFactory.get();
         for (int i : scaleList) {
             List<TransienceNoveltyResonance> noveltyTransienceResonance = getNoveltyTransienceResonance(topicDistribution, i);
+
             arrayList.add(noveltyTransienceResonance);
         }
-        for (int topicIndex = 0; topicIndex < 10; topicIndex++) {
-            stream(scaleList).mapToObj(scaleSize -> getNoveltyTransienceResonance(topicDistribution, scaleSize)).forEachOrdered(arrayList::add);
+        for (int topicIndex = 0; topicIndex < 9; topicIndex++) {
+            for (int scaleSize : scaleList) {
+
+                List<TransienceNoveltyResonance> noveltyTransienceResonance = getNoveltyTransienceResonance(topicDistribution, scaleSize);
+                arrayList.add(noveltyTransienceResonance);
+            }
         }
         return arrayList;
     }
@@ -146,11 +151,12 @@ public class NoveltyTransienceResonance {
         //Define a windows before and after center of the document according to Dr. Zach
         //Get the list of theta from an array list of topic distribution
         //This is necessary to avoid index out of bound exception
+        List<double[]> thetaAsList = topicDistribution.stream().map(d -> d.theta).collect(Collectors.toList());
         range(speechStart, speechEnd).forEachOrdered(i -> {
-            LdaTopicDistribution centerDistribution = topicDistribution.get(i);
+          //  var topDistribution
+            double[] centerDistribution = thetaAsList.get(i);
             int afterBoxEnd = i + scaleSize + 1;
             int beforeBoxStart = i - scaleSize;
-            List<double[]> thetaAsList = topicDistribution.stream().map(d -> d.theta).collect(Collectors.toList());
             long lastIndex = thetaAsList.size();
             if (lastIndex >= i) {
                 //get the before topic distribution as a sublist from a list
@@ -159,7 +165,7 @@ public class NoveltyTransienceResonance {
                 int beforeNum = beforeDistribution.size();
                 //array list of before center
                 List<double[]> list = new ArrayList<>();
-                for (double[] elt : Arrays.asList(centerDistribution.theta)) {
+                for (double[] elt : Arrays.asList(centerDistribution)) {
                     List<double[]> doubles = Collections.nCopies(beforeNum, elt);
                     for (double[] double1 : doubles) {
                         list.add(double1);
@@ -177,13 +183,13 @@ public class NoveltyTransienceResonance {
                 //  novelties.add(novelty);
                 //    var date =  topicDistribution.get(1).blog_date;
                 var novelt = new Novelty();
-                novelt.date = centerDistribution.date;
+                novelt.date =  topicDistribution.get(1).date;
                         //addOneDay(centerDistribution.date);
                 novelt.novelty = novelty;
                 novelties.add(novelt);
                 //  novelties.add(novelty);
                 if (lastIndex >= (i + 1) && lastIndex >= afterBoxEnd) {
-                    generateTransienceAndResonance(transiences, resonances, i, centerDistribution, afterBoxEnd, thetaAsList, novelty);
+                    generateTransienceAndResonance(transiences, resonances, i, centerDistribution, afterBoxEnd, thetaAsList, novelty,topicDistribution.get(1).date);
                 }
             }
         });
@@ -195,11 +201,11 @@ public class NoveltyTransienceResonance {
         return noveltyTransienceResonance;
     }
 
-    private void generateTransienceAndResonance(ArrayList<Transience> transiences, ArrayList<Resonance> resonances, int i, LdaTopicDistribution centerDistribution, int afterBoxEnd, List<double[]> thetaAsList, double novelty) {
+    private void generateTransienceAndResonance(ArrayList<Transience> transiences, ArrayList<Resonance> resonances, int i, double[] centerDistribution, int afterBoxEnd, List<double[]> thetaAsList, double novelty,String date) {
         ArrayList<?> afterDistribution = new ArrayList<>(sublist(thetaAsList, i + 1, afterBoxEnd));
         int afterNum = afterDistribution.size();
         List<double[]> list = new ArrayList<>();
-        for (double[] elt : Arrays.asList(centerDistribution.theta)) {
+        for (double[] elt : Arrays.asList(centerDistribution)) {
             List<double[]> doubles = Collections.nCopies(afterNum, elt);
             for (double[] double1 : doubles) {
                 list.add(double1);
@@ -212,13 +218,13 @@ public class NoveltyTransienceResonance {
         double transience = stream(afterKlDivergence).average().orElse(0.0);
         //centerDistribution.
         var _transience = new Transience();
-        _transience.date = centerDistribution.date;
+        _transience.date = date;
         _transience.transience = transience;
         transiences.add(_transience);
         //(transience);
         double resonance = novelty - transience;
         var _resonance = new Resonance();
-        _resonance.date = centerDistribution.date;
+        _resonance.date = date;
         _resonance.resonance = resonance;
         resonances.add(_resonance);
     }

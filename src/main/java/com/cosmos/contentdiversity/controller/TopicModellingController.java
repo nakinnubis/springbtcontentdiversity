@@ -27,9 +27,9 @@ public class TopicModellingController {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         Request request = new Request.Builder()
-                .url("http://144.167.35.135:9011/api/v1/dashboard/trackers/312/topic-distribution?dateStart=2018-01-01&dateEnd=2020-01-02")
+                .url("http://144.167.35.135:9011/api/v1/dashboard/trackers/312/topic-distribution?dateStart=2018-01-01&dateEnd=2019-01-01")
                 .method("GET", null)
-                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjb3Ntb2dyYXBoZXJzQGdtYWlsLmNvbSIsImV4cCI6MTY0Mzc4NjUwOX0.ujTdnMJiZg5umHz-FPf_BAN50mqJr9LA_sDDa31Ftl-Dsc92A1Jpd8L_TOPHfSXSNXuVn7nLepd2e0QuxMO4xQ")
+                .addHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjb3Ntb2dyYXBoZXJzQGdtYWlsLmNvbSIsImV4cCI6MTY0Mzk3ODgwOH0.RA1Yu7q-Qnyf0nIhNTz9mr6oVnavLYHOxRaPUl48cKHWBjH7CIv9qztf6Vvv2V0_toTWEfqP4v_Vj4hmO0iWHA")
                 .build();
         ResponseBody response = client.newCall(request).execute().body();
         ObjectMapper objectMapper = new ObjectMapper();

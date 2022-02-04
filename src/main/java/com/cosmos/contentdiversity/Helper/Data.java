@@ -56,4 +56,6 @@ public class Data {
     public void setTheta(double[] theta) {
         this.theta = theta; }
     double[] theta;
+    public String blogger;
+    public String location;
 }
