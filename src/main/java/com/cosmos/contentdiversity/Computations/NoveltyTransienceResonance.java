@@ -25,15 +25,15 @@ public class NoveltyTransienceResonance {
     public ArrayList main(List<LdaTopicDistribution> topicDistribution) {
         Supplier<ArrayList> collectionFactory = ArrayList::new;
         ArrayList arrayList = collectionFactory.get();
-        for (int i : scaleList) {
-            List<TransienceNoveltyResonance> noveltyTransienceResonance = getNoveltyTransienceResonance(topicDistribution, i);
-
-            arrayList.add(noveltyTransienceResonance);
-        }
-        for (int topicIndex = 0; topicIndex < 9; topicIndex++) {
+//        for (int i : scaleList) {
+//            List<TransienceNoveltyResonance> noveltyTransienceResonance = getNoveltyTransienceResonance(topicDistribution, i);
+//            arrayList.add(noveltyTransienceResonance);
+//        }
+        //
+        for (int topicIndex = 0; topicIndex < 10; topicIndex++) {
             for (int scaleSize : scaleList) {
 
-                List<TransienceNoveltyResonance> noveltyTransienceResonance = getNoveltyTransienceResonance(topicDistribution, scaleSize);
+                List<TransienceNoveltyResonance> noveltyTransienceResonance = getNoveltyTransienceResonance(topicDistribution, scaleSize,topicIndex);
                 arrayList.add(noveltyTransienceResonance);
             }
         }
@@ -136,7 +136,7 @@ public class NoveltyTransienceResonance {
      * @param scaleSize         this is the scale input argument e.g currently we have a final scales ranging from [100 - 800]
      * @return A list of an arraylist of transience, novelty and resonance this is due to the fact that it is usually used with various scales so it will return these items for each scale element
      */
-    public List<TransienceNoveltyResonance> getNoveltyTransienceResonance(List<LdaTopicDistribution> topicDistribution, int scaleSize) {
+    public List<TransienceNoveltyResonance> getNoveltyTransienceResonance(List<LdaTopicDistribution> topicDistribution, int scaleSize,int topicIndex) {
         int speechStart = scaleSize;
         //get the number of topic distribution rows in the array
         //this number of rows is stored as row size to replace the version of Dr. Zach doc_topic.shape[0]
@@ -151,7 +151,7 @@ public class NoveltyTransienceResonance {
         //Define a windows before and after center of the document according to Dr. Zach
         //Get the list of theta from an array list of topic distribution
         //This is necessary to avoid index out of bound exception
-        List<double[]> thetaAsList = topicDistribution.stream().map(d -> d.theta).collect(Collectors.toList());
+        List<double[]> thetaAsList = topicDistribution.stream().map(d -> new double[]{d.theta[topicIndex]}).collect(Collectors.toList());
         range(speechStart, speechEnd).forEachOrdered(i -> {
           //  var topDistribution
             double[] centerDistribution = thetaAsList.get(i);
