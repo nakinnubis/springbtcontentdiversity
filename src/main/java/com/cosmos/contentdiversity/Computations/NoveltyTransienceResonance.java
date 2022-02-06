@@ -19,10 +19,20 @@ import static java.util.Arrays.stream;
 import static java.util.stream.IntStream.range;
 
 public class NoveltyTransienceResonance {
-    final int[] scaleList = new int []{3};
+    public int[] getScaleList() {
+        return scaleList;
+    }
+
+    public void setScaleList(int[] scaleList) {
+        this.scaleList = scaleList;
+    }
+
+    public int[] scaleList = new int []{};
     public static final double log2 = Math.log(2);
 
     public ArrayList main(List<LdaTopicDistribution> topicDistribution) {
+        int scale = (int) (topicDistribution.size()*0.3);
+        setScaleList(new int[]{scale});
         Supplier<ArrayList> collectionFactory = ArrayList::new;
         ArrayList arrayList = collectionFactory.get();
 //        for (int i : scaleList) {

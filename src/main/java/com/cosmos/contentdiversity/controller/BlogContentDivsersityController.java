@@ -41,7 +41,7 @@ private  void getTopicDistribution() throws IOException {
             .build();
     //&size=500
     Request request = new Request.Builder()
-            .url("http://144.167.35.135:9011/api/v1/dashboard/trackers/428/topic-distribution?dateStart=2017-01-01&dateEnd=2018-01-01&size=200")
+            .url("http://144.167.35.135:9011/api/v1/dashboard/trackers/428/topic-distribution?dateStart=2017-01-01&dateEnd=2018-01-01&size=200000")
             .method("GET", null)
             .addHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjb3Ntb2dyYXBoZXJzQGdtYWlsLmNvbSIsImV4cCI6MTY0NDczNjkzMH0.EYhgeJvMrxTgV60Y2nFqfMxtNw0uifqzjHxUFrfs59vg5EAfCIDtEIbEpfUTYzROxiMOsoSyXbSboVx8eD2v5w")
             .build();
